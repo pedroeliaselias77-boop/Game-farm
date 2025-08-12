@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Farm de Brainrots</title>
+    <style>
+        body { font-family: Arial, background: #1a1a1a; color: #f0f0f0; padding: 20px; }
+        .shop { margin-top: 30px; }
+        .item { margin-bottom: 15px; background: #222; padding: 10px; border-radius: 8px; }
+        button { padding: 5px 10px; border-radius: 5px; border: none; background: #4caf50; color: #fff; }
+        button:disabled { background: #888; }
+    </style>
+</head>
+<body>
+    <h1>Farm de Brainrots</h1>
+    <p><b>Dinheiro:</b> R$ <span id="money">0</span></p>
+    <p><b>Ganho por segundo:</b> R$ <span id="perSec">1</span></p>
+    <div class="shop">
+        <h2>Loja de Brainrots</h2>
+        <div id="items"></div>
+    </div>
+
+    <script>
+        // Estrutura dos brainrots
+        const brainrots = [
+            { name: "Noob", baseCost: 0, perSec: 1, owned: 1, unlocked: true, unlockAt: 0 },
+            { name: "Tung Tung Sahur", baseCost: 10, perSec: 3, owned: 0, unlocked: false, unlockAt: 10 },
+            { name: "Roblox Cringe", baseCost: 50, perSec: 8, owned: 0, unlocked: false, unlockAt: 50 },
+            { name: "TikTok Dancer", baseCost: 200, perSec: 25, owned: 0, unlocked: false, unlockAt: 200 },
+            { name: "MC Pipocou", baseCost: 700, perSec: 80, owned: 0, unlocked: false, unlockAt: 700 },
+            { name: "Zap dos Tios", baseCost: 2000, perSec: 250, owned: 0, unlocked: false, unlockAt: 2000 },
+            { name: "Funk do Travessão", baseCost: 7500, perSec: 900, owned: 0, unlocked: false, unlockAt: 7500 },
+            { name: "Alok de Feira", baseCost: 25000, perSec: 3000, owned: 0, unlocked: false, unlockAt: 25000 },
+            { name: "GPT Brainrot", baseCost: 100000, perSec: 15000, owned: 0, unlocked: false, unlockAt: 100000 },
+        ];
+
+        let money = 0;
+
+        function getPerSec() {
+            return brainrots.reduce((sum, b) => sum + b.perSec * b.owned, 0);
+        }
+
+        function update() {
+            // Atualiza os valores na tela
+            document.getElementById('money').textContent = Math.floor(money);
+            document.getElementById('perSec').textContent = getPerSec();
+            renderShop();
+        }
+
+        function renderShop() {
+            const shop = document.getElementById('items');
+            shop.innerHTML = '';
+            brainrots.forEach((b, i) => {
+                // Desbloquear se tiver dinheiro suficiente
+                if (!b.unlocked && money >= b.unlockAt) b.unlocked = true;
+                if (!b.unlocked) return;
+                let cost = b.baseCost * (1.15 ** b.owned);
+                shop.innerHTML += `
+                    <div class="item">
+                        <b>${b.name}</b> <br>
+                        Gera: R$${b.perSec}/s &nbsp; | &nbsp; Você tem: ${b.owned}<br>
+                        <button onclick="buy(${i})" ${money < cost ? 'disabled' : ''}>
+                            Comprar por R$${cost.toFixed(0)}
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        window.buy = function(idx) {
+            let b = brainrots[idx];
+            let cost = b.baseCost * (1.15 ** b.owned);
+            if (money >= cost) {
+                money -= cost;
+                b.owned++;
+                update();
+            }
+        }
+
+        // loop de geração de dinheiro
+        setInterval(() => {
+            money += getPerSec() / 10;
+            update();
+        }, 100);
+
+        // inicia
+        update();
+    </script>
+</body>
+</html>
